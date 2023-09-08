@@ -5,6 +5,8 @@ import {
   faPause,
   faGear,
   faRotateRight,
+  faChessKing,
+  faChessQueen,
 } from "@fortawesome/free-solid-svg-icons";
 
 const BoardSide = () => {
@@ -12,28 +14,32 @@ const BoardSide = () => {
   const [secondsPlayer1, setSecondsPlayer1] = useState(0);
   const [minutesPlayer2, setMinutesPlayer2] = useState(15);
   const [secondsPlayer2, setSecondsPlayer2] = useState(0);
-  const [turnPlayer1, setTurnPlayer1] = useState(false);
-  const [turnPlayer2, setTurnPlayer2] = useState(false);
+  const [turnPlayer, setTurnPlayer] = useState("");
   const [stop, setStop] = useState(true);
   const intervalPlayer1Ref = useRef(null);
   const intervalPlayer2Ref = useRef(null);
 
   const handleStart = () => {
     setStop(!stop);
-    if (!turnPlayer1 && !turnPlayer2) setTurnPlayer1(true);
-    // startTimer();
+    if (!turnPlayer) {
+      setTurnPlayer("player1");
+    }
   };
 
   const handleClick = () => {
     if (!stop) {
-      if (turnPlayer1) {
-        setTurnPlayer1(false);
-        setTurnPlayer2(true);
-      } else {
-        setTurnPlayer1(true);
-        setTurnPlayer2(false);
-      }
+      setTurnPlayer((prev) => (prev === "player1" ? "player2" : "player1"));
     }
+  };
+
+  const handleReset = () => {
+    setMinutesPlayer1(15);
+    setSecondsPlayer1(0);
+    setMinutesPlayer2(15);
+    setSecondsPlayer2(0);
+    setTurnPlayer("");
+    setStop(true);
+    clearsIntervals();
   };
 
   // const handleKeyDown = (e) => {
@@ -62,103 +68,104 @@ const BoardSide = () => {
       }
     }
   };
+
+  function clearsIntervals() {
+    clearInterval(intervalPlayer1Ref.current);
+    clearInterval(intervalPlayer2Ref.current);
+  }
   //TIMER PLAYER 1
   useEffect(() => {
     if (stop) {
+      clearsIntervals();
       return;
     }
-    if (intervalPlayer2Ref.current) {
-      clearInterval(intervalPlayer2Ref.current);
+    if (turnPlayer === "player1") {
+      intervalPlayer1Ref.current = setInterval(
+        () =>
+          createInterval(
+            secondsPlayer1,
+            minutesPlayer1,
+            setSecondsPlayer1,
+            setMinutesPlayer1
+          ),
+        1000
+      );
+    } else {
+      intervalPlayer2Ref.current = setInterval(
+        () =>
+          createInterval(
+            secondsPlayer2,
+            minutesPlayer2,
+            setSecondsPlayer2,
+            setMinutesPlayer2
+          ),
+        1000
+      );
     }
-    intervalPlayer1Ref.current = setInterval(
-      () =>
-        createInterval(
-          secondsPlayer1,
-          minutesPlayer1,
-          setSecondsPlayer1,
-          setMinutesPlayer1
-        ),
-      1000
-    );
     return () => {
-      clearInterval(intervalPlayer1Ref.current);
+      clearsIntervals();
     };
-  }, [turnPlayer1, minutesPlayer1, secondsPlayer1]);
+  }, [
+    turnPlayer,
+    minutesPlayer1,
+    secondsPlayer1,
+    secondsPlayer2,
+    minutesPlayer2,
+    stop,
+  ]);
 
   //TIMER PLAYER 2
-  useEffect(() => {
-    if (stop) {
-      return;
-    }
-    if (intervalPlayer1Ref.current) {
-      clearInterval(intervalPlayer1Ref.current);
-    }
-    intervalPlayer2Ref.current = setInterval(
-      () =>
-        createInterval(
-          secondsPlayer2,
-          minutesPlayer2,
-          setSecondsPlayer2,
-          setMinutesPlayer2
-        ),
-      1000
-    );
-    return () => {
-      clearInterval(intervalPlayer2Ref.current);
-    };
-  }, [turnPlayer2, minutesPlayer2, secondsPlayer2]);
-
-  // const startTimer = () => {
-  //   clearInterval(interval);
-  //   const interval = setInterval(() => {
-  //     if (secondsPlayer1 > 0) {
-  //       setSecondsPlayer1((prev) => prev - 1);
-  //     }
-  //     if (secondsPlayer1 === 0) {
-  //       if (minutesPlayer1 === 0) {
-  //         clearInterval(intervalPlayer1Ref.current);
-  //       } else {
-  //         setMinutesPlayer1((prev) => prev - 1);
-  //         setSecondsPlayer1(59);
-  //       }
-  //     }
-  //   }, 1000);
-  // };
-
   // useEffect(() => {
   //   if (stop) {
   //     return;
   //   }
-  //   if (intervalPlayer1Ref.current) {
-  //     clearInterval(intervalPlayer1Ref.current);
-  //   } else {
-  //     intervalPlayer1Ref.current = setInterval(createInterval, 1000);
-  //   }
-  //   intervalPlayer2Ref.current = setInterval(() => {
-  //     if (secondsPlayer2 > 0) {
-  //       setSecondsPlayer2((prev) => prev - 1);
-  //     }
-  //     if (secondsPlayer2 === 0) {
-  //       if (minutesPlayer2 === 0) {
-  //         clearInterval(intervalPlayer2Ref.current);
-  //       } else {
-  //         setMinutesPlayer2((prev) => prev - 1);
-  //         setSecondsPlayer2(59);
-  //       }
-  //     }
-  //   }, 1000);
+  //   intervalPlayer2Ref.current = setInterval(
+  //     () =>
+  //       createInterval(
+  //         secondsPlayer2,
+  //         minutesPlayer2,
+  //         setSecondsPlayer2,
+  //         setMinutesPlayer2
+  //       ),
+  //     1000
+  //   );
   //   return () => {
   //     clearInterval(intervalPlayer2Ref.current);
   //   };
-  // }, [turnPlayer2, minutesPlayer2, secondsPlayer2]);
+  // }, [turnPlayer, minutesPlayer2, secondsPlayer2]);
+
+  // const startTimer = () => {
+  //   if (stop) {
+  //     return;
+  //   }
+  //   intervalPlayer1Ref.current = setInterval(
+  //     () =>
+  //       createInterval(
+  //         secondsPlayer1,
+  //         minutesPlayer1,
+  //         setSecondsPlayer1,
+  //         setMinutesPlayer1
+  //       ),
+  //     1000
+  //   );
+  //   clearInterval(intervalPlayer1Ref.current);
+  // };
 
   console.log(intervalPlayer1Ref.current);
-  console.log(turnPlayer1);
+  console.log(intervalPlayer2Ref.current);
   return (
     <div className="flex gap-10 flex-col  items-center  justify-center bg-gray-700  h-screen ">
+      <h3 className="font-bold  text-3xl">
+        <FontAwesomeIcon className=" text-white" icon={faChessQueen} />
+        <span className="text-black"> CHESS</span>
+        <span className="text-white"> CLOCK </span>
+        <FontAwesomeIcon className="text-black" icon={faChessKing} />
+      </h3>
       <div className="flex  gap-4">
         <div
-          style={turnPlayer1 ? { border: "10px  solid green" } : {}}
+          style={
+            turnPlayer === "player1" ? { border: "10px  solid green" } : {}
+          }
           className="h-72  flex  flex-col items-center justify-center w-72 bg-white rounded-md"
           onClick={handleClick}>
           {!minutesPlayer1 && secondsPlayer1 ? (
@@ -172,11 +179,13 @@ const BoardSide = () => {
           )}
           <p className=" text-3xl font-light text-black">
             {" "}
-            {turnPlayer1 ? "Turn of " : ""} Player 1
+            {turnPlayer === "player1" ? "Turn of " : ""} Player 1
           </p>
         </div>
         <div
-          style={turnPlayer2 ? { border: "10px  solid green" } : {}}
+          style={
+            turnPlayer === "player2" ? { border: "10px  solid green" } : {}
+          }
           onClick={handleClick}
           className="h-72 flex  flex-col items-center justify-center w-72 bg-black rounded-md">
           {!minutesPlayer2 && secondsPlayer2 ? (
@@ -190,7 +199,7 @@ const BoardSide = () => {
           )}
           <p className=" text-3xl font-light text-white">
             {" "}
-            {turnPlayer2 ? "Turn of " : ""} Player 2
+            {turnPlayer === "player2" ? "Turn of " : ""} Player 2
           </p>
         </div>
       </div>
@@ -206,7 +215,7 @@ const BoardSide = () => {
             <FontAwesomeIcon size="2xl" icon={faPlay} />
           )}
         </button>
-        <button>
+        <button onClick={handleReset}>
           <FontAwesomeIcon size="2xl" icon={faRotateRight} />
         </button>
       </div>
