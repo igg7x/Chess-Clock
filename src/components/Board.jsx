@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { PLAYERS } from "../constants/Players";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlay,
@@ -8,6 +9,8 @@ import {
   faChessKing,
   faChessQueen,
 } from "@fortawesome/free-solid-svg-icons";
+import PlayerClock from "./PlayerClock";
+import Button from "./Button";
 
 const BoardSide = () => {
   const [minutesPlayer1, setMinutesPlayer1] = useState(15);
@@ -22,13 +25,15 @@ const BoardSide = () => {
   const handleStart = () => {
     setStop(!stop);
     if (!turnPlayer) {
-      setTurnPlayer("player1");
+      setTurnPlayer(PLAYERS.player1);
     }
   };
 
   const handleClick = () => {
     if (!stop) {
-      setTurnPlayer((prev) => (prev === "player1" ? "player2" : "player1"));
+      setTurnPlayer((prev) =>
+        prev === PLAYERS.player1 ? PLAYERS.player2 : PLAYERS.player1
+      );
     }
   };
 
@@ -79,7 +84,7 @@ const BoardSide = () => {
       clearsIntervals();
       return;
     }
-    if (turnPlayer === "player1") {
+    if (turnPlayer === PLAYERS.player1) {
       intervalPlayer1Ref.current = setInterval(
         () =>
           createInterval(
@@ -151,8 +156,6 @@ const BoardSide = () => {
   //   clearInterval(intervalPlayer1Ref.current);
   // };
 
-  console.log(intervalPlayer1Ref.current);
-  console.log(intervalPlayer2Ref.current);
   return (
     <div className="flex gap-10 flex-col  items-center  justify-center bg-gray-700  h-screen ">
       <h3 className="font-bold  text-3xl">
@@ -162,52 +165,23 @@ const BoardSide = () => {
         <FontAwesomeIcon className="text-black" icon={faChessKing} />
       </h3>
       <div className="flex  gap-4">
-        <div
-          style={
-            turnPlayer === "player1" ? { border: "10px  solid green" } : {}
-          }
-          className="h-72  flex  flex-col items-center justify-center w-72 bg-white rounded-md"
-          onClick={handleClick}>
-          {!minutesPlayer1 && secondsPlayer1 ? (
-            ""
-          ) : (
-            <p className="font-semibold text-4xl text-black">
-              {" "}
-              {minutesPlayer1}:
-              {secondsPlayer1 < 10 ? `0${secondsPlayer1}` : secondsPlayer1}
-            </p>
-          )}
-          <p className=" text-3xl font-light text-black">
-            {" "}
-            {turnPlayer === "player1" ? "Turn of " : ""} Player 1
-          </p>
-        </div>
-        <div
-          style={
-            turnPlayer === "player2" ? { border: "10px  solid green" } : {}
-          }
-          onClick={handleClick}
-          className="h-72 flex  flex-col items-center justify-center w-72 bg-black rounded-md">
-          {!minutesPlayer2 && secondsPlayer2 ? (
-            ""
-          ) : (
-            <p className="font-semibold text-4xl text-white">
-              {" "}
-              {minutesPlayer2}:
-              {secondsPlayer2 < 10 ? `0${secondsPlayer2}` : secondsPlayer2}
-            </p>
-          )}
-          <p className=" text-3xl font-light text-white">
-            {" "}
-            {turnPlayer === "player2" ? "Turn of " : ""} Player 2
-          </p>
-        </div>
+        <PlayerClock
+          turn={turnPlayer}
+          turnPlayer={turnPlayer === PLAYERS.player1}
+          handleClick={handleClick}
+          minutes={minutesPlayer1}
+          seconds={secondsPlayer1}
+        />
+        <PlayerClock
+          turn={turnPlayer}
+          turnPlayer={turnPlayer === PLAYERS.player2}
+          handleClick={handleClick}
+          minutes={minutesPlayer2}
+          seconds={secondsPlayer2}
+        />
       </div>
-
       <div className="flex justify-center gap-5">
-        <button>
-          <FontAwesomeIcon size="2xl" icon={faGear} />
-        </button>
+        <Button icon={faGear} />
         <button onClick={handleStart}>
           {stop ? (
             <FontAwesomeIcon size="2xl" icon={faPause} />
@@ -215,9 +189,7 @@ const BoardSide = () => {
             <FontAwesomeIcon size="2xl" icon={faPlay} />
           )}
         </button>
-        <button onClick={handleReset}>
-          <FontAwesomeIcon size="2xl" icon={faRotateRight} />
-        </button>
+        <Button onButtonClick={handleReset} icon={faRotateRight} />
       </div>
     </div>
   );

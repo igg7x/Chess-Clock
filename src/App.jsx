@@ -1,9 +1,9 @@
-import BoardSide from "./components/BoardSide.jsx";
+import Board from "./components/Board.jsx";
 
 function App() {
   return (
     <>
-      <BoardSide />
+      <Board />
     </>
   );
 }
