@@ -3,7 +3,9 @@ import { PLAYERS } from "../constants/Players";
 const PlayerClock = ({ turnPlayer, handleClick, minutes, seconds, turn }) => {
   return (
     <div
-      style={turnPlayer ? { border: "10px  solid green" } : {}}
+      style={
+        turnPlayer ? { border: "10px  solid green" } : { pointerEvents: "none" }
+      }
       className="h-72  flex  flex-col items-center justify-center w-72 bg-white rounded-md"
       onClick={handleClick}>
       <p className="font-semibold text-4xl text-black">

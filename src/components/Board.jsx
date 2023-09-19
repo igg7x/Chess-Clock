@@ -51,10 +51,6 @@ const timesReducer = (state, action) => {
 };
 
 const BoardSide = () => {
-  // const [minutesPlayer1, setMinutesPlayer1] = useState(15);
-  // const [secondsPlayer1, setSecondsPlayer1] = useState(0);
-  // const [minutesPlayer2, setMinutesPlayer2] = useState(15);
-  // const [secondsPlayer2, setSecondsPlayer2] = useState(0);
   const [turnPlayer, setTurnPlayer] = useState("");
   const [stop, setStop] = useState(true);
   const intervalPlayer1Ref = useRef(null);
@@ -85,10 +81,6 @@ const BoardSide = () => {
     setTurnPlayer("");
     setStop(true);
     clearsIntervals();
-    times.player1.minutes = 15;
-    times.player1.seconds = 0;
-    times.player2.minutes = 15;
-    times.player2.seconds = 0;
   };
 
   function clearsIntervals() {
@@ -123,7 +115,7 @@ const BoardSide = () => {
     return () => {
       clearsIntervals();
     };
-  }, [stop, turnPlayer]);
+  }, [stop, turnPlayer, times]);
 
   // const handleKeyDown = (e) => {
   //   // console.log(e);
