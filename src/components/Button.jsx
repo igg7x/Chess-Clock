@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 const Buttons = ({ icon, onButtonClick }) => {
   return (
     <button onClick={onButtonClick}>
-      <FontAwesomeIcon size="2xl" icon={icon} />
+      <FontAwesomeIcon size="3x" icon={icon} />
     </button>
   );
 };

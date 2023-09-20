@@ -45,6 +45,13 @@ const timesReducer = (state, action) => {
           seconds: state.player2.seconds === 0 ? 59 : state.player2.seconds - 1,
         },
       };
+
+    case "RESET":
+      return {
+        ...state,
+        player1: { minutes: 0, seconds: 10 },
+        player2: { minutes: 1, seconds: 0 },
+      };
     default:
       return state;
   }
@@ -78,6 +85,7 @@ const BoardSide = () => {
   };
 
   const handleReset = () => {
+    dispatch({ type: "RESET" });
     setTurnPlayer("");
     setStop(true);
     clearsIntervals();
@@ -221,17 +229,17 @@ const BoardSide = () => {
   //   );
   //   clearInterval(intervalPlayer1Ref.current);
   // };
-
   return (
     <div className="flex gap-10 flex-col  items-center  justify-center bg-gray-700  h-screen ">
       <h3 className="font-bold  text-3xl">
         <FontAwesomeIcon className=" text-white" icon={faChessQueen} />
-        <span className="text-black"> CHESS</span>
-        <span className="text-white"> CLOCK </span>
+        <span className="text-black underline">CHESS </span>
+        <span className="text-white underline"> CLOCK</span>
         <FontAwesomeIcon className="text-black" icon={faChessKing} />
       </h3>
-      <div className="flex  gap-4">
+      <div className="flex justify-center max-[400px]:flex-col  max-[400px]:justify-center  w-[90%] h-[70%] gap-4">
         <PlayerClock
+          name={PLAYERS.player1}
           turn={turnPlayer}
           turnPlayer={turnPlayer === PLAYERS.player1}
           handleClick={handleClick}
@@ -239,6 +247,7 @@ const BoardSide = () => {
           seconds={times.player1.seconds}
         />
         <PlayerClock
+          name={PLAYERS.player2}
           turn={turnPlayer}
           turnPlayer={turnPlayer === PLAYERS.player2}
           handleClick={handleClick}
@@ -246,14 +255,14 @@ const BoardSide = () => {
           seconds={times.player2.seconds}
         />
       </div>
-      <div className="flex justify-center gap-5">
+      <div className="flex justify-center  gap-4">
         <Button icon={faGear} onButtonClick={toogleModal} />
         <ConfigModal show={isShowing} onCloseModal={toogleModal} />
         <button onClick={handleStart}>
           {stop ? (
-            <FontAwesomeIcon size="2xl" icon={faPause} />
+            <FontAwesomeIcon size="3x" icon={faPause} />
           ) : (
-            <FontAwesomeIcon size="2xl" icon={faPlay} />
+            <FontAwesomeIcon size="3x" icon={faPlay} />
           )}
         </button>
         <Button onButtonClick={handleReset} icon={faRotateRight} />
