@@ -10,7 +10,7 @@ const PlayerClock = ({
 }) => {
   const clockClasses =
     player === PLAYERS.player1
-      ? "h-auto  flex flex-col max-[400px]:rotate-180  max-[400px]:w-full  max-[400px]:h-full  items-center justify-center w-4/5 bg-white rounded-md"
+      ? "h-auto  flex flex-col max-[500px]:rotate-180  max-[400px]:w-full  max-[400px]:h-full  items-center justify-center w-4/5 bg-white rounded-md"
       : "h-auto flex flex-col items-center justify-center w-4/5 max-[400px]:w-full max-[400px]:h-full  rounded-md bg-black";
 
   const numberClases = player === PLAYERS.player1 ? "text-black" : "text-white";
