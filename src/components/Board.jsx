@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useReducer } from "react";
 import { PLAYERS } from "../constants/Players";
+import { ACCIONS } from "../constants/Actions";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlay,
@@ -13,9 +14,11 @@ import PlayerClock from "./PlayerClock";
 import Button from "./Button";
 import ConfigModal from "./ConfigModal";
 import { useModal } from "../hooks/useModal";
+import { useSettings } from "../hooks/useSettings";
+import LostModal from "./LostModal";
 
 const timesReducer = (state, action) => {
-  const { type } = action;
+  const { type, payload } = action;
   switch (type) {
     case PLAYERS.player1:
       return {
@@ -46,11 +49,53 @@ const timesReducer = (state, action) => {
         },
       };
 
-    case "RESET":
+    case ACCIONS.RESET:
       return {
         ...state,
-        player1: { minutes: 0, seconds: 10 },
-        player2: { minutes: 1, seconds: 0 },
+        ...payload,
+      };
+
+    case ACCIONS.INCREMENT_PLAYER1:
+      let seconds =
+        parseInt(state.player1.seconds) + parseInt(payload.increment);
+      let minutes = parseInt(state.player1.minutes);
+      if (seconds >= 60) {
+        minutes += 1;
+        seconds =
+          parseInt(state.player1.seconds) + parseInt(payload.increment) - 60;
+      }
+      console.log(seconds);
+      return {
+        ...state,
+        player1: {
+          ...state.player1,
+          minutes,
+          seconds,
+        },
+        player2: {
+          ...state.player2,
+        },
+      };
+
+    case ACCIONS.INCREMENT_PLAYER2:
+      let seconds2 =
+        parseInt(state.player2.seconds) + parseInt(payload.increment);
+      let minutes2 = parseInt(state.player2.minutes);
+      if (seconds2 >= 60) {
+        minutes2 += 1;
+        seconds2 =
+          parseInt(state.player2.seconds) + parseInt(payload.increment) - 60;
+      }
+      return {
+        ...state,
+        player1: {
+          ...state.player1,
+        },
+        player2: {
+          ...state.player2,
+          minutes: minutes2,
+          seconds: seconds2,
+        },
       };
     default:
       return state;
@@ -62,30 +107,58 @@ const BoardSide = () => {
   const [stop, setStop] = useState(true);
   const intervalPlayer1Ref = useRef(null);
   const intervalPlayer2Ref = useRef(null);
-  const [times, dispatch] = useReducer(timesReducer, {
-    player1: { minutes: 0, seconds: 10 },
-    player2: { minutes: 1, seconds: 0 },
-  });
-
+  // Custom Hooks
   const { isShowing, toggle: toogleModal } = useModal();
+  const { isShowing: lostModal, toggle: toogleLostModal } = useModal();
+  const { settings, updateSettings } = useSettings();
+  const { player1, player2 } = settings;
+  const [increment, setIncrement] = useState(3);
+  const [isIncrement, setIsIncrement] = useState(false);
+
+  const [times, dispatch] = useReducer(timesReducer, {
+    player1: { minutes: player1.minutes, seconds: player1.seconds },
+    player2: { minutes: player2.minutes, seconds: player2.seconds },
+  });
 
   const handleStart = () => {
     setStop(!stop);
     if (!turnPlayer) {
-      setTurnPlayer(PLAYERS.player1);
+      setTurnPlayer(player1.name);
     }
   };
-
   const handleClick = () => {
     if (!stop) {
       setTurnPlayer((prev) =>
-        prev === PLAYERS.player1 ? PLAYERS.player2 : PLAYERS.player1
+        prev === player1.name ? player2.name : player1.name
       );
+      if (isIncrement) {
+        if (turnPlayer === player1.name) {
+          dispatch({
+            type: `INCREMENT-${Object.keys(settings)[0]}`,
+            payload: { increment },
+          });
+        } else {
+          dispatch({
+            type: `INCREMENT-${Object.keys(settings)[1]}`,
+            payload: { increment },
+          });
+        }
+      }
     }
   };
 
+  const toggleIncrement = () => {
+    setIsIncrement(!isIncrement);
+  };
+
   const handleReset = () => {
-    dispatch({ type: "RESET" });
+    dispatch({
+      type: "RESET",
+      payload: {
+        player1: { minutes: player1.minutes, seconds: player1.seconds },
+        player2: { minutes: player2.minutes, seconds: player2.seconds },
+      },
+    });
     setTurnPlayer("");
     setStop(true);
     clearsIntervals();
@@ -97,19 +170,22 @@ const BoardSide = () => {
   }
 
   useEffect(() => {
-    if (stop) {
+    if (stop || isShowing) {
       clearsIntervals();
       return;
     }
+
     if (times.player1.minutes === 0 && times.player1.seconds === 0) {
+      toogleLostModal();
       clearInterval(intervalPlayer1Ref.current);
       return;
     }
     if (times.player2.minutes === 0 && times.player2.seconds === 0) {
+      toogleLostModal();
       clearInterval(intervalPlayer2Ref.current);
       return;
     }
-    if (turnPlayer === PLAYERS.player1) {
+    if (turnPlayer === player1.name) {
       intervalPlayer1Ref.current = setInterval(
         () => dispatch({ type: PLAYERS.player1 }),
         1000
@@ -123,112 +199,18 @@ const BoardSide = () => {
     return () => {
       clearsIntervals();
     };
-  }, [stop, turnPlayer, times]);
+  }, [stop, turnPlayer, times, isShowing]);
 
-  // const handleKeyDown = (e) => {
-  //   // console.log(e);
-  //   // if (e.keyCode === 32) {
-  //   //   if (turnPLayer1) {
-  //   //     setTurnPlayer1(false);
-  //   //     setTurnPlayer2(true);
-  //   //   } else {
-  //   //     setTurnPlayer1(true);
-  //   //     setTurnPlayer2(false);
-  //   //   }
-  //   // }
-  // };
+  useEffect(() => {
+    dispatch({
+      type: "RESET",
+      payload: {
+        player1: { minutes: player1.minutes, seconds: player1.seconds },
+        player2: { minutes: player2.minutes, seconds: player2.seconds },
+      },
+    });
+  }, [settings]);
 
-  // const createInterval = (seconds, minutes, setSeconds, setMinutes) => {
-  //   if (seconds > 0) {
-  //     setSeconds((prev) => prev - 1);
-  //   }
-  //   if (seconds === 0) {
-  //     if (minutes === 0) {
-  //       clearInterval(intervalPlayer1Ref.current);
-  //     } else {
-  //       setMinutes((prev) => prev - 1);
-  //       setSeconds(59);
-  //     }
-  //   }
-  // };
-
-  // //TIMER PLAYER 1
-  // useEffect(() => {
-  //   if (stop) {
-  //     clearsIntervals();
-  //     return;
-  //   }
-  //   if (turnPlayer === PLAYERS.player1) {
-  //     intervalPlayer1Ref.current = setInterval(
-  //       () =>
-  //         createInterval(
-  //           secondsPlayer1,
-  //           minutesPlayer1,
-  //           setSecondsPlayer1,
-  //           setMinutesPlayer1
-  //         ),
-  //       1000
-  //     );
-  //   } else {
-  //     intervalPlayer2Ref.current = setInterval(
-  //       () =>
-  //         createInterval(
-  //           secondsPlayer2,
-  //           minutesPlayer2,
-  //           setSecondsPlayer2,
-  //           setMinutesPlayer2
-  //         ),
-  //       1000
-  //     );
-  //   }
-  //   return () => {
-  //     clearsIntervals();
-  //   };
-  // }, [
-  //   turnPlayer,
-  //   minutesPlayer1,
-  //   secondsPlayer1,
-  //   secondsPlayer2,
-  //   minutesPlayer2,
-  //   stop,
-  // ]);
-
-  //TIMER PLAYER 2
-  // useEffect(() => {
-  //   if (stop) {
-  //     return;
-  //   }
-  //   intervalPlayer2Ref.current = setInterval(
-  //     () =>
-  //       createInterval(
-  //         secondsPlayer2,
-  //         minutesPlayer2,
-  //         setSecondsPlayer2,
-  //         setMinutesPlayer2
-  //       ),
-  //     1000
-  //   );
-  //   return () => {
-  //     clearInterval(intervalPlayer2Ref.current);
-  //   };
-  // }, [turnPlayer, minutesPlayer2, secondsPlayer2]);
-
-  // const startTimer = () => {
-  //   if (stop) {
-  //     return;
-  //   }
-  //   intervalPlayer1Ref.current = setInterval(
-  //     () =>
-  //       createInterval(
-  //         secondsPlayer1,
-  //         minutesPlayer1,
-  //         setSecondsPlayer1,
-  //         setMinutesPlayer1
-  //       ),
-  //     1000
-  //   );
-  //   clearInterval(intervalPlayer1Ref.current);
-  // };
   return (
     <div className="flex gap-10 flex-col  items-center  justify-center bg-gray-700  h-screen ">
       <h3 className="font-bold  text-3xl">
@@ -239,17 +221,17 @@ const BoardSide = () => {
       </h3>
       <div className="flex justify-center max-[400px]:flex-col  max-[400px]:justify-center  w-[90%] h-[70%] gap-4">
         <PlayerClock
-          name={PLAYERS.player1}
-          turn={turnPlayer}
-          turnPlayer={turnPlayer === PLAYERS.player1}
+          name={player1.name}
+          player={Object.keys(settings)[0]}
+          turnPlayer={turnPlayer}
           handleClick={handleClick}
           minutes={times.player1.minutes}
           seconds={times.player1.seconds}
         />
         <PlayerClock
-          name={PLAYERS.player2}
-          turn={turnPlayer}
-          turnPlayer={turnPlayer === PLAYERS.player2}
+          player={Object.keys(settings)[1]}
+          name={player2.name}
+          turnPlayer={turnPlayer}
           handleClick={handleClick}
           minutes={times.player2.minutes}
           seconds={times.player2.seconds}
@@ -257,7 +239,22 @@ const BoardSide = () => {
       </div>
       <div className="flex justify-center  gap-4">
         <Button icon={faGear} onButtonClick={toogleModal} />
-        <ConfigModal show={isShowing} onCloseModal={toogleModal} />
+        <ConfigModal
+          show={isShowing}
+          onReset={handleReset}
+          onCloseModal={toogleModal}
+          updateSettings={updateSettings}
+          isIncrement={isIncrement}
+          toggleIncrement={toggleIncrement}
+          increment={increment}
+          setIncrement={setIncrement}
+        />
+        <LostModal
+          show={lostModal}
+          onCloseModal={toogleLostModal}
+          turnPlayer={turnPlayer}
+          onReset={handleReset}
+        />
         <button onClick={handleStart}>
           {stop ? (
             <FontAwesomeIcon size="3x" icon={faPause} />

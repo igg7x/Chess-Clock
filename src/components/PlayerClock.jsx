@@ -5,31 +5,41 @@ const PlayerClock = ({
   handleClick,
   minutes,
   seconds,
-  turn,
   name,
+  player,
 }) => {
   const clockClasses =
-    name === PLAYERS.player1
+    player === PLAYERS.player1
       ? "h-auto  flex flex-col max-[400px]:rotate-180  max-[400px]:w-full  max-[400px]:h-full  items-center justify-center w-4/5 bg-white rounded-md"
       : "h-auto flex flex-col items-center justify-center w-4/5 max-[400px]:w-full max-[400px]:h-full  rounded-md bg-black";
 
-  const numberClases = name === PLAYERS.player1 ? "text-black" : "text-white";
+  const numberClases = player === PLAYERS.player1 ? "text-black" : "text-white";
 
   return (
     <div
       style={
-        turnPlayer ? { border: "10px  solid green" } : { pointerEvents: "none" }
+        turnPlayer === name
+          ? { border: "20px  solid green" }
+          : { pointerEvents: "none" }
       }
       className={clockClasses}
       onClick={handleClick}>
+      <p>
+        {minutes === 0 && seconds < 15 ? (
+          <span className="text-red-500  font-semibold text-3xl">
+            {seconds} SECONDS LEFT!
+          </span>
+        ) : null}
+      </p>
       <h1
         draggable="false"
         className={`font-semibold  text-7xl md:text-xl ${numberClases}`}>
         {" "}
         {minutes}:{seconds < 10 ? `0${seconds}` : seconds}
       </h1>
+
       <p className={`text-3xl font-light ${numberClases}`}>
-        {turnPlayer ? `Turn ${PLAYERS[turn]}` : ""}
+        {turnPlayer === name ? `Turn ${name}` : `${name}`}
       </p>
     </div>
   );
