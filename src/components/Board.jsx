@@ -219,7 +219,7 @@ const BoardSide = () => {
         <span className="text-white underline"> CLOCK</span>
         <FontAwesomeIcon className="text-black" icon={faChessKing} />
       </h3>
-      <div className="flex justify-center max-[400px]:flex-col  max-[400px]:justify-center  w-[90%] h-[70%] gap-4">
+      <div className="flex justify-center max-[500px]:flex-col  max-[400px]:justify-center  w-[90%] h-[70%] gap-4">
         <PlayerClock
           name={player1.name}
           player={Object.keys(settings)[0]}
