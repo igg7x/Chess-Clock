@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useReducer } from "react";
 import { PLAYERS } from "../constants/Players";
 import { ACCIONS } from "../constants/Actions";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import MemoizedFontAwesomeIcon from "./MemoizedFontAwesomeIcon";
 import {
   faPlay,
   faPause,
@@ -214,10 +215,10 @@ const BoardSide = () => {
   return (
     <div className="flex gap-10 flex-col  items-center  justify-center bg-gray-700  h-screen ">
       <h3 className="font-bold  text-3xl">
-        <FontAwesomeIcon className=" text-white" icon={faChessQueen} />
+        <MemoizedFontAwesomeIcon icon={faChessQueen} size={"1x"} />
         <span className="text-black underline">CHESS </span>
         <span className="text-white underline"> CLOCK</span>
-        <FontAwesomeIcon className="text-black" icon={faChessKing} />
+        <MemoizedFontAwesomeIcon icon={faChessKing} size={"1x"} />
       </h3>
       <div className="flex justify-center max-[500px]:flex-col  max-[500px]:justify-center  w-[90%] h-[70%] gap-4">
         <PlayerClock
@@ -257,9 +258,9 @@ const BoardSide = () => {
         />
         <button onClick={handleStart}>
           {stop ? (
-            <FontAwesomeIcon size="3x" icon={faPause} />
-          ) : (
             <FontAwesomeIcon size="3x" icon={faPlay} />
+          ) : (
+            <FontAwesomeIcon size="3x" icon={faPause} />
           )}
         </button>
         <Button onButtonClick={handleReset} icon={faRotateRight} />

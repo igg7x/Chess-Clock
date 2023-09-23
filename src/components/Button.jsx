@@ -1,13 +1,12 @@
-import React from "react";
+import React, { memo } from "react";
+import MemoizedFontAwesomeIcon from "./MemoizedFontAwesomeIcon";
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
-const Buttons = ({ icon, onButtonClick }) => {
+const Buttons = memo(({ icon, onButtonClick }) => {
   return (
     <button onClick={onButtonClick}>
-      <FontAwesomeIcon size="3x" icon={icon} />
+      <MemoizedFontAwesomeIcon size={"3x"} icon={icon} />
     </button>
   );
-};
+});
 
 export default Buttons;

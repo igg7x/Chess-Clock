@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark, faClock } from "@fortawesome/free-solid-svg-icons";
 import Accordion from "./Accordion";
+import MemoizedFontAwesomeIcon from "./MemoizedFontAwesomeIcon";
 
 const ConfigModal = ({
   show,
@@ -28,6 +29,10 @@ const ConfigModal = ({
 
   const validate = (configPlayer1, configPlayer2, increment) => {
     const errors = {};
+
+    if (configPlayer1.name === configPlayer2.name) {
+      errors.name = "Names must be different";
+    }
 
     if (increment < 1) {
       errors.increment = "Increment must be greater than 0";
@@ -108,7 +113,7 @@ const ConfigModal = ({
       });
     }
 
-    if (configPlayer1.seconds < 0) {
+    if (configPlayer1.seconds <= 0) {
       errors.P1seconds = "Seconds must be greater than 0";
       setConfigValuesPlayer1({
         ...configPlayer1,
@@ -124,27 +129,11 @@ const ConfigModal = ({
       });
     }
 
-    if (configPlayer2.seconds < 0) {
+    if (configPlayer2.seconds <= 0) {
       errors.P2seconds = "Seconds must be greater than 0";
       setConfigValuesPlayer2({
         ...configPlayer2,
         seconds: 0,
-      });
-    }
-
-    if (configPlayer1.minutes === 0 && configPlayer1.seconds === 0) {
-      errors.P1minutes = "Minutes must be greater than 0";
-      setConfigValuesPlayer1({
-        ...configPlayer1,
-        minutes: 0,
-      });
-    }
-
-    if (configPlayer2.minutes === 0 && configPlayer2.seconds === 0) {
-      errors.P2minutes = "Minutes must be greater than 0";
-      setConfigValuesPlayer2({
-        ...configPlayer2,
-        minutes: 0,
       });
     }
 
@@ -185,7 +174,7 @@ const ConfigModal = ({
     <div className="fixed top-0 left-0 w-full h-full  flex items-center justify-center backdrop-blur-sm">
       <section className="w-[50%]  max-[800px]:w-[75%]   max-[300px]:gap-2  h-auto sm:w-[90%] md:w-[80%] absolute lg:w-[70%] xl:w-[60%]  bg-gray-300 rounded-md p-8 flex flex-col  items-center gap-10">
         <button className="absolute top-0 right-0 p-2" onClick={onCloseModal}>
-          <FontAwesomeIcon size="2x" icon={faXmark} />
+          <MemoizedFontAwesomeIcon size="2x" icon={faXmark} />
         </button>
         <h1 className="font-bold text-3xl text-center">
           <span className="text-black">Game Settings</span>
@@ -226,9 +215,15 @@ const ConfigModal = ({
           <div
             className="flex flex-col items-
             gap-2 ">
+            {errors.name && (
+              <p className="text-red-500 font-bold">{errors.name}</p>
+            )}
             <div className="flex gap-1 items-center">
               <label htmlFor="increment" className=" font-bold italic">
-                <FontAwesomeIcon className="text-black" icon={faClock} />
+                <MemoizedFontAwesomeIcon
+                  className="text-black"
+                  icon={faClock}
+                />
                 CLOCK Increment :
               </label>
               <input

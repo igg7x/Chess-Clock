@@ -38,7 +38,7 @@ const PlayerClock = ({
         {minutes}:{seconds < 10 ? `0${seconds}` : seconds}
       </h1>
 
-      <p className={`text-3xl font-light ${numberClases}`}>
+      <p className={`text-3xl font-bold ${numberClases}`}>
         {turnPlayer === name ? `Turn ${name}` : `${name}`}
       </p>
     </div>
